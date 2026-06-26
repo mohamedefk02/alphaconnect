@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --panel: rgba(10, 12, 16, 0.72);
+      --text: #f2f4f8;
+      --muted: #8c96a6;
+      --accent: #76d7c4;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+
+    .stage {
+      position: fixed;
+      inset: 0;
+    }
+
+    .stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .toggle {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 2;
+      display: inline-flex;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+    }
+
+    .toggle button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      cursor: pointer;
+      outline: none;
+      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .toggle button:hover {
+      transform: translateY(-1px);
+    }
+
+    .toggle button[aria-pressed="true"] {
+      background: var(--accent);
+      color: #07110f;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 640px) {
+      .toggle {
+        left: 50%;
+        transform: translateX(-50%);
+        top: 14px;
+        width: calc(100% - 28px);
+        justify-content: space-between;
+      }
+
+      .toggle button {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="toggle" aria-label="Language toggle">
+    <button type="button" data-lang="ar" aria-pressed="true">AR</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+  </nav>
+
+  <main class="stage">
+    <img id="language-image" src="" alt="Language specific image">
+  </main>
+
+  <script>
+    const image = document.getElementById('language-image');
+    const buttons = Array.from(document.querySelectorAll('.toggle button'));
+
+    const languageMap = {
+      en: {
+        image: '/assets/alphaconnect-boussole-eng.png'
+      },
+      fr: {
+        image: '/assets/alphaconnect-boussole-fr.png'
+      },
+      ar: {
+        image: '/assets/alphaconnect-boussole-ar.png'
+      }
+    };
+
+    function getInitialLanguage() {
+      const params = new URLSearchParams(window.location.search);
+      const fromQuery = (params.get('lang') || '').toLowerCase();
+      if (languageMap[fromQuery]) {
+        return fromQuery;
+      }
+
+      return 'ar';
+    }
+
+    function renderLanguage(lang, updateUrl) {
+      const entry = languageMap[lang] || languageMap.en;
+      image.src = entry.image;
+      image.alt = `${lang.toUpperCase()} image`;
+
+      buttons.forEach((button) => {
+        const active = button.dataset.lang === lang;
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.history.replaceState({}, '', url);
+      }
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        renderLanguage(button.dataset.lang, true);
+      });
+    });
+
+    renderLanguage(getInitialLanguage(), false);
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>.</title>
   <style>
     body {
@@ -22,89 +23,116 @@
       text-transform: uppercase;
       color: #333;
       flex-shrink: 0;
-    }
-    .grid-container {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
       position: relative;
+    }
+    .language-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid #000;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+    }
+    .language-toggle button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #666;
+      padding: 8px 11px;
+      font: inherit;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .language-toggle button[aria-pressed="true"] {
+      background: #000;
+      color: #fff;
+    }
+    .image-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 10px;
-      gap: 10px;
+      overflow: hidden;
       min-height: 0; /* Important for grid item scaling */
     }
-    .grid-item {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-    .grid-item img {
-      max-width: 95%;
-      max-height: 95%;
-      object-fit: contain;
-    }
-    
-    /* Stylized Intersection */
-    .intersection {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+    .image-stage img {
       width: 100%;
       height: 100%;
-      pointer-events: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .line-h {
-      position: absolute;
-      width: 150px;
-      height: 2px;
-      background: linear-gradient(to right, transparent, #000 50%, transparent);
-    }
-    .line-v {
-      position: absolute;
-      width: 2px;
-      height: 150px;
-      background: linear-gradient(to bottom, transparent, #000 50%, transparent);
-    }
-    .line-h::after {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 6px;
-        background: #000;
-        border-radius: 4px;
-    }
-    .line-v::after {
-        content: '';
-        position: absolute;
-        left: -2px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 6px;
-        height: 40px;
-        background: #000;
-        border-radius: 4px;
+      object-fit: contain;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div class="header">solve to find your way out</div>
-  <div class="grid-container">
-    <div class="grid-item"><img src="/assets/equation1.jpg" alt=""></div>
-    <div class="grid-item"><img src="/assets/equation2.jpg" alt=""></div>
-    <div class="grid-item"><img src="/assets/equation3.jpg" alt=""></div>
-    <div class="grid-item"><img src="/assets/equation4.jpg" alt=""></div>
-    <div class="intersection">
-      <div class="line-h"></div>
-      <div class="line-v"></div>
+  <div class="header">
+    solve to find your way out
+    <div class="language-toggle" aria-label="Language toggle">
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      <button type="button" data-lang="ar" aria-pressed="true">AR</button>
     </div>
   </div>
+  <div class="image-stage">
+    <img id="language-image" src="" alt="Language image">
+  </div>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll('.language-toggle button'));
+    const image = document.getElementById('language-image');
+
+    const languageMap = {
+      en: {
+        image: '/assets/alphaconnect-riddles-eng.png'
+      },
+      fr: {
+        image: '/assets/alphaconnect-riddles-fr.png'
+      },
+      ar: {
+        image: '/assets/alphaconnect-riddles-ar.png'
+      }
+    };
+
+    function getInitialLanguage() {
+      const params = new URLSearchParams(window.location.search);
+      const fromQuery = (params.get('lang') || '').toLowerCase();
+      if (languageMap[fromQuery]) {
+        return fromQuery;
+      }
+
+      return 'ar';
+    }
+
+    function renderLanguage(lang, updateUrl) {
+      const entry = languageMap[lang] || languageMap.en;
+      image.src = entry.image;
+      image.alt = `${lang.toUpperCase()} image`;
+
+      buttons.forEach((button) => {
+        const active = button.dataset.lang === lang;
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', lang);
+        window.history.replaceState({}, '', url);
+      }
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        renderLanguage(button.dataset.lang, true);
+      });
+    });
+
+    renderLanguage(getInitialLanguage(), false);
+  </script>
 </body>
 </html>

@@ -1,4 +1,16 @@
 {
+  "redirects": [
+    {
+      "source": "/ENWE",
+      "destination": "https://game-xi-green-74.vercel.app",
+      "permanent": false
+    },
+    {
+      "source": "/enwe",
+      "destination": "https://game-xi-green-74.vercel.app",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     { "source": "/robots.txt", "destination": "/api/index.js" },
     { "source": "/(.*)", "destination": "/api/index.js" }
